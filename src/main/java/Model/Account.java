@@ -9,21 +9,21 @@ public abstract class Account implements Serializable {
 
 
 
-    private int balance;
+    private float balance;
 
 
 
 
-    public abstract void addMoney(int amount);
+    public abstract void addMoney(float amount);
 
-    public abstract void withdrawMoney(int amount);
+    public abstract void withdrawMoney(float amount);
 
-    public int getBalance() {
+    public float getBalance() {
         return balance;
     }
 
 
-    public void setBalance(int balance) {
+    public void setBalance(float balance) {
         this.balance = balance;
     }
 }

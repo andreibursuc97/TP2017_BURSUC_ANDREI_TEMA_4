@@ -13,14 +13,15 @@ public class SavingAccount extends Account {
     {
         this.id=id;
         this.owner=owner;
+
     }
 
 
-    public void addMoney(int amount) {
+    public void addMoney(float amount) {
         throw new IllegalArgumentException("You can't add money in a Saving Account!");
     }
 
-    public void withdrawMoney(int amount) {
+    public void withdrawMoney(float amount) {
         assert amount==super.getBalance();
         super.setBalance(super.getBalance()-amount);
         assert super.getBalance()==0;

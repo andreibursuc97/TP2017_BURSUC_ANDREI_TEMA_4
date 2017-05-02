@@ -1,10 +1,7 @@
 package Start;
 
 import Controller.Controller;
-import Model.Account;
-import Model.Bank;
-import Model.Person;
-import Model.SpendingAccount;
+import Model.*;
 import View.StartingPanel;
 
 import java.io.FileInputStream;
@@ -22,7 +19,7 @@ public class Main {
         Account account1=new SpendingAccount(1,"andreibursuc");
         Person person2=new Person(2,"Barbu Alexandru","barbualex","omugnom");
         Account account2=new SpendingAccount(1,"barbualex");
-        Bank bank=new Bank();
+        Bank bank=new Bank((float) 0.05);
         bank.addPerson(person1,account1);
         bank.addPerson(person2,account2);
         bank.writeObject();
@@ -34,7 +31,8 @@ public class Main {
             in.close();
             fileIn.close();
             StartingPanel startingPanel=new StartingPanel();
-            Controller controller=new Controller(e,startingPanel);
+            IEL listener=new EventListener(e);
+            Controller controller=new Controller(e,startingPanel,listener);
 
         }catch(IOException i) {
             i.printStackTrace();

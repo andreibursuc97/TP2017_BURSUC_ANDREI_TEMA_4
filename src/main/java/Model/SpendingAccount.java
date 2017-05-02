@@ -15,19 +15,19 @@ public class SpendingAccount extends Account {
     }
 
 
-    public void addMoney(int amount) {
+    public void addMoney(float amount) {
         assert amount>0 && amount<MAX_AMOUNT;
 
-        int previousBalance=super.getBalance();
+        float previousBalance=super.getBalance();
         super.setBalance(super.getBalance()+amount);
 
         assert super.getBalance()==previousBalance+amount;
     }
 
-    public void withdrawMoney(int amount) {
+    public void withdrawMoney(float amount) {
 
-        assert amount<=super.getBalance() && amount>0;
-        int previousBalance=super.getBalance();
+        assert(amount<=super.getBalance() && amount>0);
+        float previousBalance=super.getBalance();
         super.setBalance(super.getBalance()-amount);
 
         assert super.getBalance()==previousBalance-amount;

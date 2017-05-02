@@ -23,16 +23,18 @@ public class ClientView extends JFrame {
     private JTextField idAccountField;
     private JTextField amountField;
     private JButton withdrawMoneyButton;
-    private JTextField textField2;
+    private JTextField ownerField;
     private JPanel panel1;
     private JButton logOutButton;
     private Bank bank;
     private MyModel modelAccounts;
     private String clientUsername;
+    private IEL listener;
 
-    public ClientView(Bank bank, String username) {
+    public ClientView(Bank bank, String username,IEL listener) {
         this.bank = bank;
         this.clientUsername = username;
+        this.listener=listener;
         modelAccounts = new MyModel();
 
         $$$setupUI$$$();
@@ -48,10 +50,17 @@ public class ClientView extends JFrame {
 
         withdrawMoneyButton.addActionListener(new WithdrawMoney());
         logOutButton.addActionListener(new LogOutButtonListener());
+        ownerField.setText(username);
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setSize(500, 500);
         this.setLocationRelativeTo(null);
         this.setContentPane(panel1);
+        Person person=new Person(username);
+        for(String message:listener.getMessages().get(person))
+        {
+            JOptionPane.showMessageDialog(null,message);
+        }
+        listener.getMessages().get(person).clear();
         this.setVisible(true);
     }
 
@@ -84,11 +93,11 @@ public class ClientView extends JFrame {
 
                     if (account instanceof SpendingAccount) {
                         spendingAccount = (SpendingAccount) account;
-                        dateTabel = new String[]{Integer.toString(spendingAccount.getId()), spendingAccount.getOwner(), Integer.toString(spendingAccount.getBalance()), "Spending Account"};
+                        dateTabel = new String[]{Integer.toString(spendingAccount.getId()), spendingAccount.getOwner(), Float.toString(spendingAccount.getBalance()), "Spending Account"};
 
                     } else {
                         savingAccount = (SavingAccount) account;
-                        dateTabel = new String[]{Integer.toString(savingAccount.getId()), savingAccount.getOwner(), Integer.toString(savingAccount.getBalance()), "Saving Acoount"};
+                        dateTabel = new String[]{Integer.toString(savingAccount.getId()), savingAccount.getOwner(), Float.toString(savingAccount.getBalance()), "Saving Acoount"};
                     }
                     date.add(dateTabel);
                 }
@@ -138,9 +147,9 @@ public class ClientView extends JFrame {
         final JLabel label3 = new JLabel();
         label3.setText("Owner");
         panel2.add(label3, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        textField2 = new JTextField();
-        textField2.setEditable(false);
-        panel2.add(textField2, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        ownerField = new JTextField();
+        ownerField.setEditable(false);
+        panel2.add(ownerField, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JPanel panel3 = new JPanel();
         panel3.setLayout(new GridLayoutManager(1, 1, new Insets(0, 0, 20, 0), -1, -1));
         panel1.add(panel3, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
@@ -163,15 +172,20 @@ public class ClientView extends JFrame {
 
             try {
                 int id = Integer.parseInt(idAccountField.getText());
-                int amount = Integer.parseInt(amountField.getText());
+                float amount = Float.parseFloat(amountField.getText());
 
                 Person person = new Person(clientUsername);
                 if (bank.getBankList().get(person).get(id - 1) instanceof SpendingAccount) {
                     SpendingAccount account = (SpendingAccount) bank.getBankList().get(person).get(id - 1);
+                    if(amount>account.getBalance())
+                        throw new IllegalArgumentException("You don't have enough money to withdraw!");
                     account.withdrawMoney(amount);
                 } else {
                     SavingAccount account = (SavingAccount) bank.getBankList().get(person).get(id - 1);
+                    if(amount>account.getBalance() || amount<account.getBalance())
+                        throw new IllegalArgumentException("From a Saving Account you can only extract the entire balance!");
                     account.withdrawMoney(amount);
+                    bank.getBankList().get(person).remove(id-1);
                 }
                 modelUpdateAccounts(clientUsername);
             } catch (IllegalArgumentException err) {
@@ -187,7 +201,17 @@ public class ClientView extends JFrame {
 
             try {
                 ClientView.this.dispose();
-                ;
+                Person person1=new Person(ownerField.getText());
+                for ( Person pers : bank.getBankList().keySet() ) {
+                    if(pers.equals(person1))
+                        pers.setLogat(false);
+                }
+
+                for(Person person:bank.getPersons()) {
+                    if (person.equals(person1))
+                        person.setLogat(false);
+                }
+
                 ClientView.this.bank.writeObject();
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());

@@ -1,6 +1,7 @@
 package Controller;
 
 import Model.Bank;
+import Model.IEL;
 import Model.Person;
 import View.BankView;
 import View.ClientView;
@@ -15,15 +16,16 @@ import java.awt.event.ActionListener;
  */
 public class Controller {
 
-    BankView bankView;
-    Bank bank;
-    StartingPanel startingPanel;
+    private BankView bankView;
+    private Bank bank;
+    private StartingPanel startingPanel;
+    private IEL listener;
 
-    public Controller(Bank bank, StartingPanel startingPanel)
+    public Controller(Bank bank, StartingPanel startingPanel,IEL listener)
     {
-
+        this.listener=listener;
         this.bank=bank;
-        this.bankView=new BankView(bank);
+        this.bankView=new BankView(bank,listener);
         this.startingPanel=startingPanel;
         startingPanel.setLogInAsAdminButton(new LogInAdminButton());
         startingPanel.setLogInAsClientButton(new LogInClientButton());
@@ -77,7 +79,14 @@ public class Controller {
                     if(pers.equals(person1))
                         pers.setLogat(true);
                 }
-                ClientView clientView = new ClientView(bank, person1.getUsername());
+
+                for(Person person:bank.getPersons())
+                {
+                    if(person.equals(person1))
+                        person.setLogat(true);
+                }
+
+                ClientView clientView = new ClientView(bank, person1.getUsername(),listener);
 
 
             }catch (IllegalArgumentException err)

@@ -16,11 +16,13 @@ public class Bank implements BankProc,java.io.Serializable {
 
     private HashMap<Person,ArrayList<Account>> bankList;
     private ArrayList<Person> persons;
+    private float interest;
 
 
-    public Bank() {
+    public Bank(float interest) {
         bankList=new HashMap<Person, ArrayList<Account>>();
         persons=new ArrayList<Person>();
+        this.interest=interest;
 
     }
 
@@ -80,5 +82,14 @@ public class Bank implements BankProc,java.io.Serializable {
 
     public ArrayList<Person> getPersons() {
         return persons;
+    }
+
+
+    public float getInterest() {
+        return interest;
+    }
+
+    public void setInterest(float interest) {
+        this.interest = interest;
     }
 }

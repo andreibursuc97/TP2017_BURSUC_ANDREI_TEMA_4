@@ -36,15 +36,20 @@ public class BankView extends JFrame {
     private JTextField ownerField;
     private JButton addMoneyButton;
     private JButton addAccountButton;
+    private JTextField currentRateField;
+    private JTextField newRateField;
+    private JButton changeRateButton;
     //private JTextField ownerField;
     private MyModel modelClients;
     private MyModel modelAccounts;
     private Bank bank;
+    private IEL listener;
 
 
-    public BankView(Bank bank) {
+    public BankView(Bank bank,IEL listener) {
         modelClients = new MyModel();
         modelAccounts = new MyModel();
+        this.listener=listener;
         this.bank = bank;
         //$$$setupUI$$$();
         //table1 = new JTable();
@@ -56,10 +61,15 @@ public class BankView extends JFrame {
         table1.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
                 String selectedUsername = "";
-                if (table1.getValueAt(table1.getSelectedRow(), 1) != null)
+                String name="";
+                if (table1.getSelectedRow()!=-1)
+                {
                     selectedUsername = table1.getValueAt(table1.getSelectedRow(), 1).toString();
+                    name=table1.getValueAt(table1.getSelectedRow(), 2).toString();
+                }
                 ownerField.setText(selectedUsername);
                 usernameField.setText(selectedUsername);
+                nameField.setText(name);
                 BankView.this.modelUpdateAccounts(selectedUsername);
             }
         });
@@ -79,10 +89,12 @@ public class BankView extends JFrame {
         group.add(savingAccountRadioButton);
         this.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setSize(650, 1000);
+        currentRateField.setText(Float.toString(bank.getInterest()));
         addClientButton.addActionListener(new AddClient());
         logOutButton.addActionListener(new LogOutButon());
         addMoneyButton.addActionListener(new AddMoney());
         addAccountButton.addActionListener(new AddAcount());
+        changeRateButton.addActionListener(new ChangeInterestListener());
         this.setLocationRelativeTo(null);
         this.setContentPane(panel1);
 
@@ -213,21 +225,37 @@ public class BankView extends JFrame {
                 String username = usernameField.getText();
                 String name = nameField.getText();
                 String password = passwordField.getText();
-                int balance = Integer.parseInt(balanceField.getText());
+                float balance = Float.parseFloat(balanceField.getText());
                 int id = bank.getPersons().get(bank.getPersons().size() - 1).getId() + 1;
                 Person person = new Person(id, name, username, password);
                 Account account;
+                boolean type=false;
                 if (bank.getBankList().containsKey(person))
                     throw new IllegalArgumentException("This username is already used!");
                 if (spendingAccountRadioButton.isSelected())
+                {
                     account = new SpendingAccount(1, username);
+                    account.setBalance(balance);
+                }
                 else {
                     account = new SavingAccount(1, username);
+                    account.setBalance(balance+balance*bank.getInterest());
+                    type=true;
                 }
-                account.setBalance(balance);
+
                 bank.addPerson(person, account);
                 modelUpdateClientsTable();
                 modelUpdateAccounts(username);
+
+                listener.addPerson(bank,person);
+                listener.notifyClient(person,new String(name+" your new profile was created!"));
+                if(type)
+                {
+                    listener.notifyClient(person,new String(name+" your first account is a Saving Account with the balance "+balance));
+                }
+                else
+                    listener.notifyClient(person,new String(name+" your first account is a Spending Account with the balance "+balance));
+
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
             }
@@ -241,21 +269,32 @@ public class BankView extends JFrame {
 
             try {
                 String username = usernameField.getText();
-                int balance = Integer.parseInt(balanceField.getText());
+                float balance = Float.parseFloat(balanceField.getText());
                 Person person = new Person(username);
                 Account account;
+                boolean type=false;
                 if (!bank.getBankList().containsKey(person))
                     throw new IllegalArgumentException("This username doesn't exist!");
                 int id = bank.getBankList().get(person).size() + 1;
 
                 if (spendingAccountRadioButton.isSelected())
+                {
                     account = new SpendingAccount(id, username);
+                    account.setBalance(balance);
+                }
                 else {
                     account = new SavingAccount(id, username);
+                    account.setBalance(balance+balance*bank.getInterest());
+                    type=true;
                 }
-                account.setBalance(balance);
+
                 bank.addAccount(person, account);
                 modelUpdateAccounts(username);
+
+                if(type)
+                    listener.notifyClient(person,new String(nameField.getText()+" a new Saving Account with the initial balance "+balance+" was created!"));
+                else
+                    listener.notifyClient(person,new String(nameField.getText()+" a new Spending Account with the initial balance "+balance+" was created!"));
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
             }
@@ -272,8 +311,9 @@ public class BankView extends JFrame {
 
             try {
                 int id = Integer.parseInt(idAccountField.getText());
-                int amount = Integer.parseInt(amountField.getText());
+                float amount = Float.parseFloat(amountField.getText());
                 String owner = ownerField.getText();
+                String name=nameField.getText();
                 Person person = new Person(owner);
                 if (bank.getBankList().get(person).get(id - 1) instanceof SpendingAccount) {
                     SpendingAccount account = (SpendingAccount) bank.getBankList().get(person).get(id - 1);
@@ -281,7 +321,28 @@ public class BankView extends JFrame {
                 } else {
                     throw new IllegalArgumentException("You can't add money in a Saving Account!");
                 }
+                listener.notifyClient(person,new String(name+" in contul tau a fost adaugata suma de "+amount+"!"));
                 modelUpdateAccounts(owner);
+            } catch (IllegalArgumentException err) {
+                JOptionPane.showMessageDialog(null, err.getMessage());
+            }
+        }
+    }
+
+    public class ChangeInterestListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+            try {
+                float interest=Float.parseFloat(newRateField.getText());
+                bank.setInterest(interest);
+                for(Person person:bank.getPersons())
+                {
+                    listener.notifyClient(person,new String(person.getName()+" the rate of interest have been changed to "+interest+"!"));
+                }
+                currentRateField.setText(Float.toString(bank.getInterest()));
+
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
             }
@@ -346,10 +407,10 @@ public class BankView extends JFrame {
                     SpendingAccount spendingAccount = null;
                     if (account instanceof SavingAccount) {
                         savingAccount = (SavingAccount) account;
-                        dateTabel = new String[]{Integer.toString(savingAccount.getId()), savingAccount.getOwner(), Integer.toString(savingAccount.getBalance()), "Saving Acoount"};
+                        dateTabel = new String[]{Integer.toString(savingAccount.getId()), savingAccount.getOwner(), Float.toString(savingAccount.getBalance()), "Saving Acoount"};
                     } else {
                         spendingAccount = (SpendingAccount) account;
-                        dateTabel = new String[]{Integer.toString(spendingAccount.getId()), spendingAccount.getOwner(), Integer.toString(spendingAccount.getBalance()), "Spending Account"};
+                        dateTabel = new String[]{Integer.toString(spendingAccount.getId()), spendingAccount.getOwner(), Float.toString(spendingAccount.getBalance()), "Spending Account"};
 
                     }
                     date.add(dateTabel);
