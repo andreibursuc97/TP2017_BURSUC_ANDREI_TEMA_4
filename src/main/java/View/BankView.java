@@ -321,7 +321,7 @@ public class BankView extends JFrame {
                 } else {
                     throw new IllegalArgumentException("You can't add money in a Saving Account!");
                 }
-                listener.notifyClient(person,new String(name+" in contul tau a fost adaugata suma de "+amount+"!"));
+                listener.notifyClient(person,new String(name+" in your account was added "+amount+"!"));
                 modelUpdateAccounts(owner);
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
