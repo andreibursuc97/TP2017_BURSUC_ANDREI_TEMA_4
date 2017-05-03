@@ -1,7 +1,7 @@
 package Model;
 
 /**
- * Created by Andrei on 30/04/2017.
+ * Interfata BankProc defineste principalele metode ce vor fi mai departe implementate de clasa Bank.
  */
 public interface BankProc {
 

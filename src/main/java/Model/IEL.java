@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by Andrei on 30/04/2017.
+ * Interfata este folosita pentru a defini diveriti listeneri ce sunt folosit pentru a monitoriza modificarile efectuate asupra obiectelor din clasa.
  */
 public interface IEL {
 

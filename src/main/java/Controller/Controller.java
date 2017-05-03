@@ -12,7 +12,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by Andrei on 01/05/2017.
+ * Clasa Controller realizeaza legaturile intre obiectele de tip StartingPanel, Bank si View si permite existena mai multor clienti logati in acelasi timp si posibilitatea lor de a fi notificati
+ * cand o actiune se intreprinde asupra unui cont.
  */
 public class Controller {
 
@@ -21,6 +22,13 @@ public class Controller {
     private StartingPanel startingPanel;
     private IEL listener;
 
+    /**
+     * Contructorul clientului primeste ca parametrii trei obiecte de tipul: Bank, StartingPanel si IEL, seteaza aceste obiecte in atributele controller-ului, aplica listenerii pe cele doua butoane
+     * si face fereastra StartingPanel vizibila
+     * @param bank
+     * @param startingPanel
+     * @param listener
+     */
     public Controller(Bank bank, StartingPanel startingPanel,IEL listener)
     {
         this.listener=listener;
@@ -30,11 +38,15 @@ public class Controller {
         startingPanel.setLogInAsAdminButton(new LogInAdminButton());
         startingPanel.setLogInAsClientButton(new LogInClientButton());
         startingPanel.setVisible(true);
-        bankView.setVisible(true);
     }
 
     public class LogInAdminButton implements ActionListener {
 
+        /**
+         * Aceasta metoda verifica daca username-ul si parola introduse de utilizator coincid cu cele standard pentru admin iar in caz afirmativ face vizibila interfata pentru admin, altfel
+         * va fi afisat un mseaj de eroare
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -53,6 +65,11 @@ public class Controller {
 
     public class LogInClientButton implements ActionListener {
 
+        /**
+         * Aceasta metoda verifica daca username-ul si parola introduse de utilizator coincid cu datele vreunui client din map, iar in caz afirmativ seteaza campul logat al acelui client la
+         * valoarea true si intitializeaza un nou obiect de tip ClientView specific pentru acel client.
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 

@@ -15,7 +15,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Created by Andrei on 02/05/2017.
+ * O parte din codul pentru aceasta clasa a fost generat folosindu-se plugin-ul special din IntelIJ IDEA, ea reprezinta interfata prin care clientul poate sa-si consulte conturile si sa extraga
+ * bani din conturile lui.
  */
 public class ClientView extends JFrame {
     private JScrollPane scrollPane2;
@@ -31,6 +32,12 @@ public class ClientView extends JFrame {
     private String clientUsername;
     private IEL listener;
 
+    /**
+     * Constructorul seteaza un listener pe tabelul ce arata conturile, iar apoi seteaza listenerii pe cele doua butoane.
+     * @param bank
+     * @param username
+     * @param listener
+     */
     public ClientView(Bank bank, String username,IEL listener) {
         this.bank = bank;
         this.clientUsername = username;
@@ -64,6 +71,10 @@ public class ClientView extends JFrame {
         this.setVisible(true);
     }
 
+    /**
+     * Aceasta metoda este folosita pentru a instantia tabelul din fereastra clientului cu scrollPane-ul aferent si pentru a seta modelul de tip
+     * MyModel pe tabel.
+     */
     private void createUIComponents() {
         // TODO: place custom component creation code here
 
@@ -76,7 +87,11 @@ public class ClientView extends JFrame {
         scrollPane2 = new JScrollPane(table2);
     }
 
-
+    /**
+     * Aceasta metoda preia datele din map-ul bankList, din ArrayList-ul de Account din obiectul bank si le adauga intr-un ArrayList de tip String[].
+     * Dupa seteaza in model noul ArrayList obtinut si astfel se updateaza tabelul in functie de situatia conturilor clientului.
+     * @param username
+     */
     public void modelUpdateAccounts(String username) {
         String[] columnNames = {"Id", "Owner", "Balance", "Type"};
 
@@ -167,6 +182,11 @@ public class ClientView extends JFrame {
 
     public class WithdrawMoney implements ActionListener {
 
+        /**
+         * Metoda face ca la apasarea butonului "Withdraw Money" sa fie colectate datele necesare din casute ca mai apoi sa fie cautat contul dupa id si verificat tipul contului pentru a se putea
+         * apleca metoda withdrawMoney specifica doar claselor SpendingAccount si SavingAccount. La final se apeleaza metoda modelUpdateAccounts.
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -196,6 +216,10 @@ public class ClientView extends JFrame {
 
     public class LogOutButtonListener implements ActionListener {
 
+        /**
+         * Metoda inchide fereastra de interfata a clientului si seteaza campul logat al clientului logat in aceas interfata pe false. In final scirem obiectul bank in fisierul employee.ser .
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 

@@ -5,13 +5,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Created by Andrei on 30/04/2017.
+ * Clasa EventListener implementeaza metodele notifyClient si addPerson ea jucand rol de obiect care monitorizeaza toate schimbarile din conturile clientilor. Daca acesta e ogat va primi notifcarea
+ * imediat daca nu, o va primi la logare.
  */
 public class EventListener implements IEL {
 
     private HashMap<Person,ArrayList<String>> messages;
     private Bank bank;
 
+    /**
+     * Initializeaza map-ul messages.
+     * @param bank
+     */
     public EventListener(Bank bank)
     {
         this.bank=bank;
@@ -22,6 +27,13 @@ public class EventListener implements IEL {
         }
 
     }
+
+    /**
+     * Metoda notifica clientul in timp real daca s-a efectua o modificare asupra contului, in caz contrar va fi notifcat la logare. Aceasta metoda se apeleaza tot timpul cand administratorul
+     * efectueaza o modificare asupra contului.
+     * @param person
+     * @param message
+     */
     public void notifyClient(Person person,String message)
     {
         for(Person person1:bank.getPersons())
@@ -41,6 +53,11 @@ public class EventListener implements IEL {
         return messages;
     }
 
+    /**
+     * Adauga persoana data in map-ul messages.
+     * @param bank
+     * @param person1
+     */
     public void addPerson(Bank bank,Person person1) {
         for(Person person:bank.getPersons())
         {

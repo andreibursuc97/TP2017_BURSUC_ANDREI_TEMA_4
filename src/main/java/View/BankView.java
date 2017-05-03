@@ -15,7 +15,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * Created by Andrei on 01/05/2017.
+ * O parte din codul pentru aceasta clasa a fost generat folosindu-se plugin-ul special din IntelIJ IDEA, ea reprezinta interfata prin care adiministratorul poate
+ * adauga clienti noi, adauga conturi noi pentru clienti sau adauga bani in conturile clientilor, de asemenea de aici dobanda se poate schimba. La fiecare modificare
+ * efectuata asupra contului de catre administrator clientul daca nu este deja logat va fi notificat la prima logare in legatura cu faptul ca o anumita actiune a fost
+ * efectuata asupra contului sau.
  */
 public class BankView extends JFrame {
     private JPanel panel1;
@@ -46,6 +49,12 @@ public class BankView extends JFrame {
     private IEL listener;
 
 
+    /**
+     * Constructorul primeste ca parametrii un obiect de tip Bank si unul de tip Listener, de asemenea defineste listenerii pentru cele doua tabele din interfata
+     * si seteaza listenerii pentru butoanele din fereastra.
+     * @param bank
+     * @param listener
+     */
     public BankView(Bank bank,IEL listener) {
         modelClients = new MyModel();
         modelAccounts = new MyModel();
@@ -76,7 +85,7 @@ public class BankView extends JFrame {
 
         table2.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                String id = idAccountField.getText();
+                String id = "";
 
                 if (table2.getSelectedRow() != -1)
                     id = table2.getValueAt(table2.getSelectedRow(), 0).toString();
@@ -93,7 +102,7 @@ public class BankView extends JFrame {
         addClientButton.addActionListener(new AddClient());
         logOutButton.addActionListener(new LogOutButon());
         addMoneyButton.addActionListener(new AddMoney());
-        addAccountButton.addActionListener(new AddAcount());
+        addAccountButton.addActionListener(new AddAccount());
         changeRateButton.addActionListener(new ChangeInterestListener());
         this.setLocationRelativeTo(null);
         this.setContentPane(panel1);
@@ -211,21 +220,26 @@ public class BankView extends JFrame {
 
          */
 
-    /**
-     * Listener pentru butonul de adaugare clienti din JFrame-ul BankView.
-     * Preiau textul din filed-urile specifice si adaug in map-u bankList un client nou daca username-ul introdus nu exista deja
-     * La final updatez modelul tabelelor de persoane si conturi/
-     */
+
     public class AddClient implements ActionListener {
 
+        /**
+         * Metoda actionPerformed din listener-ul pentru butonul de adaugare clienti din JFrame-ul BankView preia textul din filed-urile specifice si adauga in map-ul
+         * bankList un client nou daca username-ul introdus nu exista deja. La final updatez modelul tabelelor de persoane si conturi dupa care notific  clientul nou
+         * ca noul cont a fost creat cu succes.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
             try {
                 String username = usernameField.getText();
+                if(username.length()<3)
+                    throw new IllegalArgumentException("The username you entered is too short!");
                 String name = nameField.getText();
                 String password = passwordField.getText();
                 float balance = Float.parseFloat(balanceField.getText());
+                if(balance<0)
+                    throw new IllegalArgumentException("The initial balance can't be negative!");
                 int id = bank.getPersons().get(bank.getPersons().size() - 1).getId() + 1;
                 Person person = new Person(id, name, username, password);
                 Account account;
@@ -242,11 +256,9 @@ public class BankView extends JFrame {
                     account.setBalance(balance+balance*bank.getInterest());
                     type=true;
                 }
-
                 bank.addPerson(person, account);
                 modelUpdateClientsTable();
                 modelUpdateAccounts(username);
-
                 listener.addPerson(bank,person);
                 listener.notifyClient(person,new String(name+" your new profile was created!"));
                 if(type)
@@ -262,7 +274,18 @@ public class BankView extends JFrame {
         }
     }
 
-    public class AddAcount implements ActionListener {
+    /**
+     * The type Add acount.
+     */
+    public class AddAccount implements ActionListener {
+
+        /**
+         * Metoda actionPerformed din listenerul pentru butonul "Add account" preia datele legate de username si balance din casutele aferente, intializeaza un obiect nou
+         * de tip persoana dupa care verifica daca username-ul exista. Tot folosindu-se de obiect preia id-ul ultimului cont creat si il foloseste pentru a furniza un id
+         * contului ce urmeaza a fi creat. Inainte de a crea contul verifica care din butoanele de tip JRadioButton sunt selectate si creaza un obiect cu tipul corespunzator. La
+         * final apeleaza metoda AddAccount, updateaza tabelul corespunzator conturilor si notifica clientul ca un cont nou a fost adaugat.
+         * @param e
+         */
 
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -270,6 +293,8 @@ public class BankView extends JFrame {
             try {
                 String username = usernameField.getText();
                 float balance = Float.parseFloat(balanceField.getText());
+                if(balance<0)
+                    throw new IllegalArgumentException("The initial balance can't be negative!");
                 Person person = new Person(username);
                 Account account;
                 boolean type=false;
@@ -292,9 +317,9 @@ public class BankView extends JFrame {
                 modelUpdateAccounts(username);
 
                 if(type)
-                    listener.notifyClient(person,new String(nameField.getText()+" a new Saving Account with the initial balance "+balance+" was created!"));
+                    listener.notifyClient(person,new String(nameField.getText()+" a new Saving Account with the initial balance "+balance+ " and the id "+id+" was created!"));
                 else
-                    listener.notifyClient(person,new String(nameField.getText()+" a new Spending Account with the initial balance "+balance+" was created!"));
+                    listener.notifyClient(person,new String(nameField.getText()+" a new Spending Account with the initial balance "+balance+" and the id "+id+ "was created!"));
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
             }
@@ -306,12 +331,21 @@ public class BankView extends JFrame {
      */
     public class AddMoney implements ActionListener {
 
+        /**
+         * Metoda actionPerformed din listenerul pentru butonul AddMoney preia datele clientului din casute (id-ul contului, numele si username-ul clientului, suma de adaugat in cont) apoi cauta clientul si contul aferent in banca si apeleaza pentru acel cont metoda addMoney, daca contul este de tip "Saving Account" se va arunca o exceptie
+         * la final notificam clientul ca banii au fost adaugati in cont si apelam metoda modelUpdateAccounts pentru a updata tabelul de conturi
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
             try {
                 int id = Integer.parseInt(idAccountField.getText());
                 float amount = Float.parseFloat(amountField.getText());
+                if(amount<0)
+                    throw new IllegalArgumentException("The can't add a negative amount into the account!");
+                if(amount>100000)
+                    throw new IllegalArgumentException("You can't add so much money into the account!");
                 String owner = ownerField.getText();
                 String name=nameField.getText();
                 Person person = new Person(owner);
@@ -321,7 +355,7 @@ public class BankView extends JFrame {
                 } else {
                     throw new IllegalArgumentException("You can't add money in a Saving Account!");
                 }
-                listener.notifyClient(person,new String(name+" in your account was added "+amount+"!"));
+                listener.notifyClient(person,new String(name+" in your account with the id "+id+" was added "+amount+"!"));
                 modelUpdateAccounts(owner);
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
@@ -329,8 +363,13 @@ public class BankView extends JFrame {
         }
     }
 
+
     public class ChangeInterestListener implements ActionListener {
 
+        /**
+         * Metoda actionPerformed din listenerul pentru butonul "ChangeListener" updateaza dobanda dupa care trimite mesaje de notificare la toti clientii, iar la final seteaza in textbox-ul din interfata noua dobanda.
+         * @param e
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -349,12 +388,12 @@ public class BankView extends JFrame {
         }
     }
 
-    /**
-     * Listener pentru butonul de delogare din interfata pentru admin.
-     * Dupa apasarea butonului de delogare inchid frame-ul de admin si salvez datele modificate intr-un fisier serializabil.
-     */
+
     public class LogOutButon implements ActionListener {
 
+        /**
+         * Metoda actionPerformed din listenerul pentru butonul de delogare din interfata pentru admin, dupa apasarea butonului de delogare inchid frame-ul de admin si salvez datele modificate intr-un fisier serializabil.
+         */
         @Override
         public void actionPerformed(ActionEvent e) {
 
@@ -368,8 +407,8 @@ public class BankView extends JFrame {
     }
 
     /**
-     * Aceasta metoda preia datele din lista de persoane din obiectul bank si le adauga intr-un ArrayList de tip String[].
-     * Dupa setez in modelul clientii noul ArrayList obtinu si astfel updatez tabelul.
+     * Aceasta metoda preia datele din lista de persoane din obiectul bank si le adauga intr-un ArrayList de tip String[], dupa seteaz in model ArrayList-ul obtinut si astfel se updateza tabelul.
+     *
      */
     public void modelUpdateClientsTable() {
         String[] columnNames = {"Id", "Username", "Name", "Password"};
@@ -390,7 +429,7 @@ public class BankView extends JFrame {
 
     /**
      * Aceasta metoda preia datele din map-ul bankList, din ArrayList-ul de Account din obiectul bank si le adauga intr-un ArrayList de tip String[].
-     * Dupa setez in modelul clientii noul ArrayList obtinu si astfel updatez tabelul in functie de clientul selectat in primul tabel.
+     * Dupa seteaza in model noul ArrayList obtinut si astfel se updateaza tabelul in functie de clientul selectat in primul tabel.
      */
     public void modelUpdateAccounts(String username) {
         String[] columnNames = {"Id", "Owner", "Balance", "Type"};
@@ -425,6 +464,11 @@ public class BankView extends JFrame {
         modelAccounts.setList(date);
     }
 
+    /**
+     * Aceasta metoda este folosita pentru a instantia cele doua tabele din fereastra administratorului cu scrollPane-urile aferente si pentru a seta modelul de tip
+     * MyModel pe tabele.
+     *
+     */
     private void createUIComponents() {
         // TODO: place custom component creation code here
         table1 = new JTable();

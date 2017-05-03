@@ -3,7 +3,7 @@ package Model;
 import java.io.Serializable;
 
 /**
- * Created by Andrei on 30/04/2017.
+ Aceasta clasa defineste obiectele de tip Person, practic este modelul unui client ce utilizeaza aplicatia, fiind definita de atributele: id,name,username,password si logat.
  */
 public class Person implements Serializable {
 
@@ -29,6 +29,11 @@ public class Person implements Serializable {
         this.logat=false;
     }
 
+    /**
+     * Avem nevoie de aceasta metoda de hashCode deoarece obiectele te tip persoana sunt folosite ca si chei in Map-ul bankList din clasa Bank. Cheia este deifinta ca valoarea primului caracter
+     * din username inmultit cu valoarea celui de al doilea inmultit cu lungimea username-ului.
+     * @return
+     */
     public int hashCode()
     {
         return username.charAt(0)*username.charAt(1)*username.length();

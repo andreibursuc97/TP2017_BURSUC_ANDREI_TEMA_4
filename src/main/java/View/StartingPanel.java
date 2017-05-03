@@ -8,7 +8,8 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 /**
- * Created by Andrei on 01/05/2017.
+ * Cea mai mare parte din codul pentru aceasta clasa a fost generat de plogin-ul special din IntelIJ ea definind fereastra care apare la deschiderea programului din care se pot loga atat clientii
+ * cat si adminul.
  */
 public class StartingPanel extends JFrame {
     private JTextField usernameField;
