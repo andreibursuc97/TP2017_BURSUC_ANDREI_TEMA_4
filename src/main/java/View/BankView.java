@@ -238,8 +238,8 @@ public class BankView extends JFrame {
                 String name = nameField.getText();
                 String password = passwordField.getText();
                 float balance = Float.parseFloat(balanceField.getText());
-                if(balance<0)
-                    throw new IllegalArgumentException("The initial balance can't be negative!");
+                if(balance<0 || balance>1000000)
+                    throw new IllegalArgumentException("The initial balance is invalid!");
                 int id = bank.getPersons().get(bank.getPersons().size() - 1).getId() + 1;
                 Person person = new Person(id, name, username, password);
                 Account account;
@@ -293,8 +293,8 @@ public class BankView extends JFrame {
             try {
                 String username = usernameField.getText();
                 float balance = Float.parseFloat(balanceField.getText());
-                if(balance<0)
-                    throw new IllegalArgumentException("The initial balance can't be negative!");
+                if(balance<0 || balance>1000000)
+                    throw new IllegalArgumentException("The initial balance is invalid!");
                 Person person = new Person(username);
                 Account account;
                 boolean type=false;
@@ -319,7 +319,7 @@ public class BankView extends JFrame {
                 if(type)
                     listener.notifyClient(person,new String(nameField.getText()+" a new Saving Account with the initial balance "+balance+ " and the id "+id+" was created!"));
                 else
-                    listener.notifyClient(person,new String(nameField.getText()+" a new Spending Account with the initial balance "+balance+" and the id "+id+ "was created!"));
+                    listener.notifyClient(person,new String(nameField.getText()+" a new Spending Account with the initial balance "+balance+" and the id "+id+ " was created!"));
             } catch (IllegalArgumentException err) {
                 JOptionPane.showMessageDialog(null, err.getMessage());
             }

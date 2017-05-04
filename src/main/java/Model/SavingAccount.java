@@ -23,7 +23,7 @@ public class SavingAccount extends Account {
     }
 
     /**
-     * @throws IllegalArgumentException -pentru obiectele de tip obiectele de tipul SavingAccount metoda addMoney arunca o exceptie pentru ca bani se pot adauga intr-un astfel de cont doar la inceput.
+     * @throws IllegalArgumentException pentru obiectele de tip obiectele de tipul SavingAccount metoda addMoney arunca o exceptie pentru ca bani se pot adauga intr-un astfel de cont doar la inceput.
      * @param amount
      */
     public void addMoney(float amount) {
