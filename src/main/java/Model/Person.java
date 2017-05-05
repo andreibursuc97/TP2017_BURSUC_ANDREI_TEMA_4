@@ -39,6 +39,7 @@ public class Person implements Serializable {
         return username.charAt(0)*username.charAt(1)*username.length();
     }
 
+
     public boolean equals(Object object)
     {
         Person person=(Person)object;

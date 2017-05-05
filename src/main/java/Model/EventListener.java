@@ -1,6 +1,7 @@
 package Model;
 
 import javax.swing.*;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,7 +9,7 @@ import java.util.HashMap;
  * Clasa EventListener implementeaza metodele notifyClient si addPerson ea jucand rol de obiect care monitorizeaza toate schimbarile din conturile clientilor. Daca acesta e ogat va primi notifcarea
  * imediat daca nu, o va primi la logare.
  */
-public class EventListener implements IEL {
+public class EventListener implements IEL,Serializable {
 
     private HashMap<Person,ArrayList<String>> messages;
     private Bank bank;
@@ -27,6 +28,7 @@ public class EventListener implements IEL {
         }
 
     }
+
 
     /**
      * Metoda notifica clientul in timp real daca s-a efectua o modificare asupra contului, in caz contrar va fi notifcat la logare. Aceasta metoda se apeleaza tot timpul cand administratorul
